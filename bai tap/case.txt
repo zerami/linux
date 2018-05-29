@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "chon bai tap"
+read baitap
+case $baitap in
+1) echo "Nhap ten" && sh ten.sh;;
+2) echo "Nhap tuoi" && sh tuoi.sh;;
+3) echo "Tinh chu vi, dien tich" && sh tinh.sh;;
+4) exit
+esac
+
+
