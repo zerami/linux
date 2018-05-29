@@ -1,0 +1,111 @@
+1/
+yum install epel-release nano wget -y
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+
+2/
+nano /etc/yum.repos.d/nginx.repo
+[nginx] 
+name=nginx repo 
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/ 
+gpgcheck=0 
+enabled=1 
+
+nano /etc/yum.repos.d/mariadb.repo
+[mariadb] 
+name = MariaDB 
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64 
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB 
+gpgcheck=1 
+
+nano /etc/yum.repos.d/remi.repo (sua file remi.reop php5.5)
+
+yum --enablerepo=remi install nginx MariaDB-client MariaDB-server php php-common php-fpm php-mysql php-pgsql -y
+yum install php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-pecl-apc php-cli php-pear php-pdo -y
+
+3/ nano /etc/php-fpm.d/www.conf
+apache -> nginx
+
+4/
+nano /etc/nginx/conf.d/wei.conf
+server { 
+listen 80; 
+server_name thoaiquy.paradiseio.com; 
+access_log /var/log/nginx/access.log; 
+error_log /var/log/nginx/error.log; 
+root /usr/share/nginx/wordpress;
+index index.php index.html; 
+location ~* \.php$ { 
+fastcgi_index   index.php; 
+fastcgi_pass    127.0.0.1:9000; 
+include         fastcgi_params; 
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name; 
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name; 
+}
+# Disable favicon.ico logging
+location = /favicon.ico {
+log_not_found off;
+access_log off;
+}
+# Allow robots and disable logging
+location = /robots.txt {
+allow all;
+log_not_found off;
+access_log off;
+}
+# Enable permalink structures
+if (!-e $request_filename) {
+rewrite . /index.php last;
+}
+# Handle php requests
+location ~ \.php$ {
+include /etc/nginx/fastcgi_params;
+fastcgi_pass  127.0.0.1:9000;
+fastcgi_index index.php;
+fastcgi_param SCRIPT_FILENAME /srv/www/wordpress/public_html$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+}
+# Disable static content logging and set cache time to max
+location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+expires max;
+log_not_found off;
+}
+# Deny access to htaccess and htpasswd files
+location ~ /\.ht {
+deny  all;
+} 
+} 
+
+5/
+cd /usr/share/nginx/ 
+wget http://wordpress.org/latest.tar.gz
+tar -xvzf latest.tar.gz -C /usr/share/nginx
+
+cd /wordpress
+cp wp-config-sample.php wp-config.php
+nano wp-config.php
+define('DB_NAME', 'dataquy');
+define('DB_USER', 'thoaiquy');
+define('DB_PASSWORD', '12345678');
+
+service nginx restart
+service mariadb restart
+service php-fpm restart
+
+6/
+mysql_secure_installation
+mysql -u root -p
+CREATE USER thoaiquy IDENTIFIED BY "12345678";
+create database dataquy;
+GRANT ALL ON dataquy.* TO thoaiquy IDENTIFIED BY "12345678";
+FLUSH PRIVILEGES;
+
+7/
+service httpd stop
+service nginx restart
+service mariadb restart
+service php-fpm restart
+
+8/nano /etc/selinux/config --> reboot
+
+
+

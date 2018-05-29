@@ -1,0 +1,63 @@
+server {
+listen 80;
+server_name ssl-thoaiquy.paradiseio.com;
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+root /usr/share/nginx/wordpress;
+index index.php index.html;
+
+location ~* \.php$ {
+fastcgi_index   index.php;
+fastcgi_pass    127.0.0.1:9000;
+include         fastcgi_params;
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+}
+}
+
+server {
+listen 8080;
+server_name ssl-thoaiquy.paradiseio.com;
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+root /usr/share/nginx/html;
+index index.php index.html;
+
+location ~* \.php$ {
+fastcgi_index   index.php;
+fastcgi_pass    127.0.0.1:9000;
+include         fastcgi_params;
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+}
+}
+
+
+firewall-cmd --add-port=8080/tcp --permanent
+firewall-cmd --reload
+
+server {
+listen 80;
+listen 443 ssl;
+server_name thoaiquy.paradiseio.com;
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+root /usr/share/nginx/html;
+index index.html;
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_prefer_server_ciphers on;
+ssl_ciphers ECDHE+RSAGCM:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:!aNULL!eNull:!EXPORT:!DES:!3DES:!MD5:!DSS;
+ssl_certificate      /usr/share/nginx/quy/chi.crt;
+ssl_certificate_key  /usr/share/nginx/quy/chi.key;
+}
+firewall-cmd --zone=dmz --add-port=8443/tcp --permanent
+firewall-cmd --add-port=8443/tcp
+firewall-cmd --add-port=3000/tcp --permanent 
+firewall-cmd --reload
+
+firewall-cmd --add-service=https --permanent 
+firewall-cmd --reload 
+
+firewall-cmd --add-port=3306/tcp
+firewall-cmd --reload 
+

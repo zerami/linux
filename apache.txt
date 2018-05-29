@@ -1,0 +1,244 @@
+1/cau hinh apache
+-----------------------------------------------------------
+yum -y install httpd
+rm -f /etc/httpd/conf.d/welcome.conf  
+-------------------------------------------------------------
+vi /etc/httpd/conf/httpd.conf 
+# line 86: change to admin's email address
+ServerAdmin root@srv.world
+# line 95: change to your server's name
+ServerName www.srv.world:80
+# line 151: change
+AllowOverride All
+# line 164: add file name that it can access only with directory's name
+DirectoryIndex index.html index.cgi index.php             
+# server's response header  
+ServerTokens Prod         
+# keepalive is ON
+KeepAlive On
+---------------------------------------------------------------
+# tao file index         
+vi /var/www/html/index.html
+ <html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+Test Page
+</div>
+</body>
+</html>
+---------------------------------------------------------------
+service httpd restart 
+##########################################################################
+2/ Mo CGI va dung Perl scripts.
+---------------------------------------------------------------
+yum -y install perl perl-CGI
+grep -n "^ *ScriptAlias" /etc/httpd/conf/httpd.conf           
+247: ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"        
+---------------------------------------------------------------
+vi /etc/httpd/conf.d/cgi-enabled.conf          
+# create new
+# processes .cgi and .pl as CGI scripts
+<Directory "/var/www/html/cgi-enabled">
+    Options +ExecCGI
+    AddHandler cgi-script .cgi .pl
+</Directory>
+------------------------------------------------------------------
+service httpd restart 
+chcon -R -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+semanage fcontext -a -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+------------------------------------------------------------------
+vi /var/www/html/cgi-enabled/index.cgi
+ #!/usr/bin/perl
+
+print "Content-type: text/html\n\n";
+print "<html>\n<body>\n";
+print "<div style=\"width: 100%; font-size: 40px; font-weight: bold; text-align: center;\">\n";
+print "CGI Test Page";
+print "\n</div>\n";
+print "</body>\n</html>\n";
+------------------------------------------------------------------------
+chmod 705 /var/www/html/cgi-enabled/index.cgi 
+##########################################################################
+3/ Configure httpd to use PHP scripts.
+----------------------------------------------------------------------
+yum -y install php php-mbstring php-pear
+vi /etc/php.ini
+# line 878: uncomment and add your timezone
+date.timezone = "Asia/Tokyo"                     
+-------------------------------------------------------------------
+vi /var/www/html/index.php
+ <html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+<?php
+   print Date("Y/m/d");
+?>
+</div>
+</body>
+</html>
+---------------------------------------------------------------------
+service httpd restart 
+##########################################################################
+4/ Configure httpd to use Ruby scripts as CGI.
+yum -y install ruby
+grep -n "^ *ScriptAlias" /etc/httpd/conf/httpd.conf 
+247: ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+---------------------------------------------------------------------
+vi /etc/httpd/conf.d/cgi-enabled.conf
+# create new
+# processes .rb as CGI scripts
+<Directory "/var/www/html/cgi-enabled">
+    Options +ExecCGI
+    AddHandler cgi-script .rb
+</Directory>
+--------------------------------------------------------------------
+service httpd restart 
+chcon -R -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+semanage fcontext -a -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+--------------------------------------------------------------------
+vi /var/www/html/cgi-enabled/index.rb
+#!/usr/bin/ruby
+
+print "Content-type: text/html\n\n"
+print "<html>\n<body>\n"
+print "<div style=\"width: 100%; font-size: 40px; font-weight: bold; text-align: center;\">\n"
+print "Ruby Script Test Page"
+print "\n</div>\n"
+print "</body>\n</html>\n" 
+------------------------------------------------------------------
+chmod 705 /var/www/html/cgi-enabled/index.rb 
+service httpd restart 
+	
+##########################################################################
+5/Enable CGI executing and use Python script.
+yum -y install python
+grep -n "^ *ScriptAlias" /etc/httpd/conf/httpd.conf 
+247: ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+--------------------------------------------------------------------------
+vi /etc/httpd/conf.d/cgi-enabled.conf
+# create new
+# processes .py as CGI scripts
+<Directory "/var/www/html/cgi-enabled">
+    Options +ExecCGI
+    AddHandler cgi-script .py
+</Directory>
+----------------------------------------------------------------------------
+service httpd restart 
+chcon -R -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+semanage fcontext -a -t httpd_sys_script_exec_t /var/www/html/cgi-enabled 
+------------------------------------------------------------------------------
+vi /var/www/html/cgi-enabled/index.py
+ #!/usr/bin/env python
+
+print "Content-type: text/html\n\n"
+print "<html>\n<body>"
+print "<div style=\"width: 100%; font-size: 40px; font-weight: bold; text-align: center;\">"
+print "Python Script Test Page"
+print "</div>\n</body>\n</html>"
+--------------------------------------------------------------------------
+chmod 705 /var/www/html/cgi-enabled/index.py 
+service httpd restart 
+##########################################################################	
+6/Enable userdir, users can create websites with this setting.
+--------------------------------------------------------------------------
+vi /etc/httpd/conf.d/userdir.conf
+# line 17: comment out
+#UserDir disabled
+# line 24: uncomment
+UserDir public_html
+# line 31 - 35
+<Directory "/home/*/public_html">
+    AllowOverride All# change
+    Options None# change
+    Require method GET POST OPTIONS
+</Directory>
+--------------------------------------------------------------------------
+user$ mkdir public_html 
+user$ chmod 711 /home/chichi 
+user$ chmod 755 /home/chichi/public_html 
+-------------------------------------------------------------------------
+suer$ vi ./public_html/index.html
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+UserDir Test Page
+</div>
+</body>
+</html>
+##########################################################################	
+7/Enable Basic Authentication
+--------------------------------------------------------------------------
+vi /etc/httpd/conf.d/auth_basic.conf
+# create new
+<Directory /var/www/html/auth-basic>
+    AuthType Basic
+    AuthName "Basic Authentication"
+    AuthUserFile /etc/httpd/conf/.htpasswd
+    require valid-user
+</Directory>
+----------------------------------------------------------------------
+htpasswd -c /etc/httpd/conf/.htpasswd chichi
+service httpd restart 
+--------------------------------------------------------------------
+mkdir /var/www/html/auth-basic 
+vi /var/www/html/auth-basic/index.html
+# create a test page
+ <html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+Test Page for Basic Auth
+</div>
+</body>
+</html>
+##########################################################################	
+8/Create SSL Certificates
+--------------------------------------------------------------------------
+cd /etc/pki/tls/certs
+make chichi.key 
+openssl rsa -in chichi.key -out chichi.key
+make chichi.csr 
+openssl x509 -in chichi.csr -out server.crt -req -signkey chichi.key -days 3650
+---------------------------------------------------------------------------
+yum -y install mod_ssl
+vi /etc/httpd/conf.d/ssl.conf
+# line 59: uncomment
+DocumentRoot "/var/www/html"
+# line 60: uncomment and specify the server name
+ServerName chichi.paradiseio.com:443
+# line 75: change
+SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2
+# line 100: change to the one created in [1]
+SSLCertificateFile /etc/pki/tls/certs/chichi.crt
+# line 107: change to the one created in [1]
+SSLCertificateKeyFile /etc/pki/tls/certs/chichi.key
+cp -f /etc/pki/tls/certs/chichi.key /etc/pki/tls/private         
+cp -f /etc/pki/tls/certs/chichi.crt /etc/pki/tls/private
+service httpd restart 
+###############################################
+9/ Virtual Hostings
+vi /etc/httpd/conf.d/vhost.conf   
+# create new
+# for original domain
+<VirtualHost *:80>
+   DocumentRoot /var/www/html
+   ServerName www.srv.world
+</VirtualHost>
+# for virtual domain
+<VirtualHost *:80>
+   DocumentRoot /home/cent/public_html
+   ServerName www.virtual.host
+   ServerAdmin webmaster@virtual.host
+   ErrorLog logs/virtual.host-error_log
+   CustomLog logs/virtual.host-access_log combined
+</VirtualHost>
+-----------------------------------------------------------------------------
+service httpd restart 
+vi ~/public_html/virtual.php
+<html>
+<body>
+<div style="width: 100%; font-size: 40px; font-weight: bold; text-align: center;">
+Virtual Host Test Page
+</div>
+</body>
+</html>
+

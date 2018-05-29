@@ -1,0 +1,109 @@
+#!/bin/bash
+#Tao user
+echo "Tao user"
+read abc
+useradd -G wei $abc
+passwd $abc
+echo "----------------------------------------------------"
+#Thuc thi lenh tao ssh-key
+echo "Tao ssh-key cho user"
+ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa
+chmod 700 /root/.ssh/id_rsa
+cd /root/.ssh
+cat id_rsa.pub > authorized_keys && chmod 600 authorized_keys
+cp -rf /root/.ssh /home/$abc
+chown -R $abc:$abc /home/$abc/.ssh && cat /home/$abc/.ssh/id_rsa
+echo "----------------------------------------------------"
+#Thuc thi cai dat lemp stack
+echo " 3/cai dat cac goi can thiet"
+yum install epel-release nano wget -y
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+echo "----------------------------------------------------"
+echo "4/tao cac file nginx.repo & mariadb.repo, sua cau hinh remi.repo"
+cat > /etc/yum.repos.d/nginx.repo << EOF
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/
+gpgcheck=0
+enabled=1
+EOF
+echo "----------------------------------------------------"
+cat > /etc/yum.repos.d/mariadb.repo << EOF
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+sed -i '20s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
+echo "----------------------------------------------------"
+echo " 4/cai dat cac goi can thiet"
+yum --enablerepo=remi install nginx MariaDB-client MariaDB-server php php-common php-fpm php-mysql php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-pecl-apc php-cli php-pear php-pdo -y
+echo "----------------------------------------------------"
+echo "6/tat selinux"
+sed -i '7s/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+echo "----------------------------------------------------"
+echo "7/chinh sua apache sang nginx"
+sed -i '23s/apache/nginx/; 25s/apache/nginx/' /etc/php-fpm.d/www.conf
+sed -i '49s/;listen.owner = nobody/listen.owner = nginx/' /etc/php-fpm.d/www.conf | sed -i '50s/;listen.group = nobody/listen.group = nginx/' /etc/php-fpm.d/www.conf | sed -i '51s/;listen.mode = 0660/listen.mode = 0660/' /etc/php-fpm.d/www.conf
+echo "----------------------------------------------------"
+echo "8/tai file wordpress & giai nen file"
+cd /usr/share/nginx/ 
+wget http://wordpress.org/latest.tar.gz && tar -xvzf latest.tar.gz -C /usr/share/nginx
+echo "----------------------------------------------------"
+echo "9/Ghi thong tin wp-config.php"
+cp -rf /usr/share/nginx/wordpress/wp-config-sample.php /usr/share/nginx/wordpress/wp-config.php
+echo "Nhap ten database"
+read data
+sed -i "23s/database_name_here/$data/" /usr/share/nginx/wordpress/wp-config.php
+echo "Nhap username" 
+read user
+sed -i "26s/username_here/$user/" /usr/share/nginx/wordpress/wp-config.php
+echo "Nhap password"
+read pass
+sed -i "29s/password_here/$pass)/" /usr/share/nginx/wordpress/wp-config.php
+echo "----------------------------------------------------"
+echo "10/cau hinh nginx"
+cat > /etc/nginx/conf.d/$abc.conf << EOF
+server { 
+listen 80; 
+server_name web; 
+access_log /var/log/nginx/access.log; 
+error_log /var/log/nginx/error.log; 
+root /usr/share/nginx/wordpress;
+index index.php index.html; 
+location ~* \.php$ { 
+fastcgi_index   index.php; 
+fastcgi_pass    127.0.0.1:9000; 
+include         fastcgi_params; 
+fastcgi_param   SCRIPT_FILENAME   \$document_root$fastcgi_script_name; 
+fastcgi_param   SCRIPT_NAME            \$fastcgi_script_name; 
+} 
+} 
+EOF
+echo "nhap server name"
+read xyz
+sed -i "3s/web/$xyz/" /etc/nginx/conf.d/$abc.conf
+echo "----------------------------------------------------"
+echo "11/cau hinh mariadb"
+service mariadb start
+mysql_secure_installation <<EOF
+
+y
+123
+123
+y
+y
+y
+y
+EOF
+mysql -u root -p 
+create user $user identified by "$pass";
+create database $data;
+grant all on $data.* to $user identified by "$pass";
+flush privileges;
+reboot
+
+
+
+

@@ -1,0 +1,52 @@
+################ Cai dat repo remi va epel cho lenh Yum #############
+yum install nano net-tools -y
+yum update -y && yum install epel-release -y
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+
+##################### Cai dat repo mariadb #########################
+
+nano  /etc/yum.repos.d/mariadb.repo
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+########### Cai dat mariadb tu repo Remi ###########################
+mkdir /var/run/mysqld
+yum --enablerepo=remi install MariaDB-client MariaDB-server -y
+service mariadb start
+
+mysql_secure_installation 
+
+Y
+123456
+123456
+y
+y
+y
+y
+EOF
+
+mysql -u root -p 12345678
+CREATE USER 'thoaiquy'@'10.1... cua wordpress' IDENTIFIED BY '12345678';
+CREATE DATABASE thoaiquydata;
+GRANT ALL ON thoaiquydata.* TO 'thoaiquy'@'10.0' IDENTIFIED BY '12345678';
+FLUSH PRIVILEGES;
+
+nano /etc/my.cnf 
+[mysqld]
+user            = mysql
+port            = 3306
+bind-address    = 10.146.0.3 #ip cua mariadb server
+#skip-networking
+
+############ mo firewall cho truy cap Mariadb ######
+
+firewall-cmd --add-port=3306/tcp 
+firewall-cmd --permanent --add-port=3306/tcp
+
+service httpd stop
+
+
+

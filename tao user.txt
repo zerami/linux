@@ -1,0 +1,16 @@
+#!/bin/bash
+sed -i '103s/^$/\%snoc    \ALL=(ALL)    \NOPASSWD: ALL/' /etc/sudoers
+#Tao user
+echo "Tao user"
+read abc
+useradd -G snoc $abc
+passwd $abc
+echo "----------------------------------------------------"
+#Thuc thi lenh tao ssh-key
+echo "Tao ssh-key cho user"
+ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa
+chmod 700 /root/.ssh/id_rsa
+cd /root/.ssh
+cat id_rsa.pub > authorized_keys && chmod 600 authorized_keys
+cp -rf /root/.ssh /home/$abc
+chown -R $abc:$abc /home/$abc/.ssh && cat /home/$abc/.ssh/id_rsa

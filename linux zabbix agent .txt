@@ -1,0 +1,22 @@
+############ add zabbix repo to Yum and install Zabbix-agent ###########
+
+yum update
+rpm -ivh http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-2.el7.noarch.rpm
+yum install zabbix-agent -y
+
+############# tweak config zabbix-agent on Linux ################################
+
+service zabbix-agent start
+
+vi /etc/zabbix/zabbix_agentd.conf
+Server=10.0.0.30   (ip cua may monitor)
+ServerActive=10.0.0.30  (ip cua may monitor)
+Hostname=zabbix.abc.xxx  (ten mien)
+
+systemctl start zabbix-agent 
+systemctl enable zabbix-agent 
+
+############ open port 10050 (zabbix-agent) #######################
+
+firewall-cmd --add-port=10050/tcp --permanent 
+firewall-cmd --reload

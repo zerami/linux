@@ -1,0 +1,35 @@
+############Choose your zabbix agent version for window and download it###########
+
+https://www.zabbix.com/download
+
+Copy copy bin\win64\{zabbix_agentd.exe,zabbix_get.exe,zabbix_sender.exe} , conf\zabbix_agentd.win.conf  to C:\zabbix
+
+############# tweak config zabbix agent on window ################################
+
+# line 23: specify the location of log file
+LogFile=C:\zabbix_agentd.log
+
+# line 86: specify Zabbix server (Apache server)
+Server=192.168.23.131
+
+# line 127: specify Zabbix server (Apache server)
+ServerActive=192.168.23.131
+
+# line 138: specify the own hostname (my HP laptop)
+Hostname=HP-PROBOOK-G3
+
+############# Install zabbix agent to window #################################
+
+Open Window Command Prompt [Run as administrator]
+
+Run command:
+
+cd C:\zabbix
+zabbix_agentd.exe --config "C:\zabbix\zabbix_agentd.win.conf" --install
+
+############## Check the service set it start automatically ###########################
+
+services.msc
+
+
+ 

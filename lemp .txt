@@ -1,0 +1,107 @@
+yum install epel-release nano wget -y
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+
+nano /etc/yum.repos.d/nginx.repo
+[nginx] 
+name=nginx repo 
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/ 
+gpgcheck=0 
+enabled=1 
+
+sed -i '20s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
+
+yum --enablerepo=remi install nginx php php-common php-fpm php-mysql php-pgsql -y
+yum install php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-pecl-apc php-cli php-pear php-pdo -y
+
+sed -i '7s/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+
+sed -i '39s/apache/nginx/; 41s/apache/nginx/' /etc/php-fpm.d/www.conf
+sed -i '31s/;listen.owner = nobody/listen.owner = nginx/' /etc/php-fpm.d/www.conf
+sed -i '32s/;listen.group = nobody/listen.group = nginx/' /etc/php-fpm.d/www.conf
+sed -i '33s/;listen.mode = 0660/listen.mode = 0660/' /etc/php-fpm.d/www.conf
+
+nano /etc/nginx/conf.d/wei.conf
+server { 
+listen 80; 
+server_name thoaiquy.paradiseio.com; 
+access_log /var/log/nginx/access.log; 
+error_log /var/log/nginx/error.log; 
+root /usr/share/nginx/wordpress;
+index index.php index.html; 
+location ~* \.php$ { 
+fastcgi_index   index.php; 
+fastcgi_pass    127.0.0.1:9000; 
+include         fastcgi_params; 
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name; 
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name; 
+}
+# Disable favicon.ico logging
+location = /favicon.ico {
+log_not_found off;
+access_log off;
+}
+# Allow robots and disable logging
+location = /robots.txt {
+allow all;
+log_not_found off;
+access_log off;
+}
+# Enable permalink structures
+if (!-e $request_filename) {
+rewrite . /index.php last;
+}
+# Handle php requests
+location ~ \.php$ {
+include /etc/nginx/fastcgi_params;
+fastcgi_pass  127.0.0.1:9000;
+fastcgi_index index.php;
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+}
+# Disable static content logging and set cache time to max
+location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+expires max;
+log_not_found off;
+}
+# Deny access to htaccess and htpasswd files
+location ~ /\.ht {
+deny  all;
+} 
+} 
+
+cd /usr/share/nginx/ 
+wget http://wordpress.org/latest.tar.gz
+tar -xvzf latest.tar.gz -C /usr/share/nginx
+cd wordpress
+cp wp-config-sample.php wp-config.php
+sed -i "23s/database_name_here/thoaiquydata/" /usr/share/nginx/wordpress/wp-config.php
+sed -i "26s/username_here/thoaiquy/" /usr/share/nginx/wordpress/wp-config.php
+sed -i "29s/password_here/12345678/" /usr/share/nginx/wordpress/wp-config.php
+sed -i "32s/localhost/10.0.0.0/" /usr/share/nginx/wordpress/wp-config.php
+
+nano /etc/yum.repos.d/mariadb.repo
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+yum --enablerepo=remi install MariaDB-client MariaDB-server -y
+service mariadb start
+
+service mariadb restart
+mysql_secure_installation
+mysql -u root -p
+CREATE USER thoaiquy IDENTIFIED BY "12345678";
+create database thoaiquydata;
+GRANT ALL ON thoaiquydata.* TO thoaiquy IDENTIFIED BY "12345678";
+FLUSH PRIVILEGES;
+
+service httpd stop
+service nginx restart
+service php-fpm restart
+
+
+
+
+

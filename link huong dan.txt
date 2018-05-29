@@ -1,0 +1,15 @@
+http://eznet-tut.blogspot.com/2014/05/script-backup-mysql-ver20.html  (script back up)
+https://saungon.com/thong-so-trong-lenh-top/
+https://www.nginx.com/blog/creating-nginx-rewrite-rules/
+dung return 301 thi chuan SEO hon
+301 => alway redirect
+302 => tmp redirect
+dung rewrite no speedy hon
+vd:
+server {
+        server_name www.paradiseio.com;
+        return 301 scheme:http://paradiseio.com
+        }
+
+https://learnxinyminutes.com/
+https://learnxinyminutes.com/docs/bash/
