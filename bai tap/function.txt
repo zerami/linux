@@ -1,0 +1,14 @@
+#!/bin/bash
+echo " Nhap 2 so bat ki"
+read a
+read b
+echo " Lua chon phep tinh"
+echo " 1 la phep cong, 2 la phep tru"
+function cong { echo $[$a+$b]; }
+function tru { echo $[$a-$b]; }
+read n
+case $n in
+1) echo -n "Dap an la :";cong;;
+2) echo -n "Dap an la :";tru;;
+3)exit
+esac

@@ -1,0 +1,6 @@
+
+#!/bin/bash
+for file in [/etc/passwd]                    ( lay ds thong tin tu file /etc/passwd) : trong do "file" la 1 bien)               
+do
+cut -f 1 -d":" /etc/passwd                   (in ra cot 1 truoc dau : )
+done

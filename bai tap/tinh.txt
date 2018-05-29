@@ -1,0 +1,43 @@
+#!/bin/bash
+echo " Chon phuong thuc tinh"
+echo "1) Nhap so tinh chu vi hinh tron"
+echo "2) Nhap so tinh dien tich hinh tron"
+echo "3) Nhap so tinh dien tich hinh thang"
+echo "4) Nhap so tinh chu vi hinh thang"
+echo "5) Exit"
+read congthuc
+case $congthuc in
+1)echo "Nhap so tinh chu vi hinh tron"
+echo "Nhap ban kinh"
+read r
+echo "Chu vi : P= $r x 2 x 3,14 = `bc<<<$r*2*3.14`";;   ( dung bc do 3.14 ko phai so nguyen)
+
+2)echo "Nhap so tinh dien tich hinh tron"
+echo "Nhap ban kinh"
+read r
+echo "Dien tich : S= $r x 3,14 = `bc<<<$r*$r*3.14`";;         ( dung bc do 3.14 ko phai so nguyen)
+
+3)echo "Nhap so tinh dien tich hinh thang"
+echo "Nhap so 2 canh day & chieu cao"
+echo "Nhap chieu dai canh day nho"
+read a
+echo "Nhap chieu dai canh day lon"
+read b
+echo "Nhap chieu cao"
+read h
+echo " Dien tich la :S=($a+$b)/2*$h " &&  echo "($a+$b)/2*$h" | bc -l;;                  ( dung bc do ($a+$b)/2 ko phai so nguyen)
+
+4)echo "Nhap so tinh chu vi hinh thang"
+echo "Nhap so 2 canh day & chieu cao"
+echo "Nhap chieu dai canh day nho"
+read a
+echo "Nhap chieu dai canh day lon"
+read b
+echo "Nhap chieu dai canh ben thu 1"
+read c
+echo "Nhap chieu dai canh ben thu 2"
+read d
+echo "Chu vi : P=$a+$b+$c+$d = `bc<<<$a+$b+$c+$d`";;
+
+5)exit
+esac

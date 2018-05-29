@@ -1,0 +1,11 @@
+#!/bin/bash
+read a
+echo "Tinh giai thua cua $a!"
+b=0
+c=1
+while [ $b -lt $a ]
+do
+b=$(($b + 1))
+c=$(($b * $c))
+done
+echo "$a!= $c"

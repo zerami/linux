@@ -1,0 +1,19 @@
+#!/bin/bash
+echo "Nhap tuoi thanh vien SNOC :"
+read t
+a=(Tang Thoai Quy 30)
+b=(Tran Thieu Co 30)
+c=(Luu Thanh 28)
+d=(Trinh Vinh Tuan 31)
+function gioithieu {
+echo " Ten thanh vien SNOC la "                                                                          (tao function de lap lai Ten thanh vien SNOC la )
+}
+if [ $t = ${a[3]} ];                                                                                                   ( lay 3 tu trong mang a)
+then echo " Trong SNOC co 2 ban la 30 tuoi, moi ban nhap ten :" && sh ten.sh    ( Do cung 30 tuoi nen chuyen qua kiem ten)
+elif [ $t = ${c[2]} ];                                                                                               (lay 2 tu trong mang c)
+then echo "`gioithieu` la ${c[@]} tuoi"                                                                   ( xuat ra thong tin function + toan bo mang c)
+elif [ $t = ${d[3]} ];                                                                                                (lay 3 tu trong mang d)
+then echo "`gioithieu` ${d[@]} tuoi"                                                                         ( xuat ra thong tin function + toan bo mang d)
+else echo " Ban da nhap sai, moi ban nhap lai"
+sh tuoi.sh                                                                                                                   
+fi
