@@ -1,0 +1,42 @@
+#!/bin/sh
+
+. /etc/pineauto/scripts.conf
+
+clear
+prompt="Input your choose:"
+options=("Enable Opcache" "Disale Opcache" "Clear Opcache cache")
+
+printf "=========================================================================\n"
+printf "                             PINE AUTO - MANAGE ZEN-OPCACHE Menu\n"
+printf "=========================================================================\n"
+phpver=$(php -v | grep PHP | awk 'NR==1 {print $2}' | awk -F "." '{print $1"."$2}')
+PS3="
+$prompt"
+select opt in "${options[@]}" "Exit"; do 
+
+    case "$REPLY" in
+	1 )	if [ $phpver == '5.6' ]; then
+			sed -i -e "s/;zend_extension/zend_extension/g" /etc/php.d/10-opcache.ini
+		else
+			sed -i -e "s/;zend_extension/zend_extension/g" /etc/php.d/opcache.ini
+		fi
+		systemctl restart php-fpm.service
+		echo "Zend Opcache has been enabled";
+	;;
+	2 ) if [ $phpver == '5.6' ]; then
+			sed -i -e "s/zend_extension/;zend_extension/g" /etc/php.d/10-opcache.ini
+		else
+			sed -i -e "s/zend_extension/;zend_extension/g" /etc/php.d/opcache.ini
+		fi
+	    systemctl restart php-fpm.service
+		echo "Zend Opcache has been disabled";
+	;;
+	3 ) echo "Zend Opcache has been reset";
+	;;
+
+    $(( ${#options[@]}+1 )) ) printf "\nGoodbye...!\n"; break;;
+    *) echo "Wrong input, please try again";continue;;
+
+    esac
+
+done

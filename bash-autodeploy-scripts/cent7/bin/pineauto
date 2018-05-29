@@ -1,0 +1,33 @@
+#!/bin/sh
+
+. /etc/pineauto/scripts.conf
+
+clear
+prompt="Input your choose:"
+options=("List website" "Add website" "Delete website" "Backup code" "Grant permission webserver" "Manage ZendOpcache" "Install extra framework for PHP" "Install Databases" "Install PhpmyAdmin" "Install Cache")
+
+printf "=========================================================================\n"
+printf "                             PINE AUTO Menu\n"
+printf "=========================================================================\n"
+PS3="
+$prompt"
+select opt in "${options[@]}" "Exit"; do 
+
+    case "$REPLY" in
+    1 ) /etc/pineauto/menu/list-website;;
+    2 ) /etc/pineauto/menu/add-website;;
+    3 ) /etc/pineauto/menu/delete-website;;
+    4 ) /etc/pineauto/menu/backup-code;;
+    5 ) /etc/pineauto/menu/grant-permission-webserver;;
+	6 ) /etc/pineauto/menu/m-opcache;;
+	7 ) /etc/pineauto/menu/install-php-framework;;
+	8 )	/etc/pineauto/menu/install-database;;
+	9 )	/etc/pineauto/menu/install-phpmyadmin;;
+	10 )	/etc/pineauto/menu/install-cache;;
+
+    $(( ${#options[@]}+1 )) ) printf "\nGoodbye...!\n"; break;;
+    *) echo "Wrong input, please try again";continue;;
+
+    esac
+
+done

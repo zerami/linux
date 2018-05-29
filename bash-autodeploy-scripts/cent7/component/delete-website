@@ -1,0 +1,37 @@
+#!/bin/bash
+
+. /etc/pineauto/scripts.conf
+
+printf "=========================================================================\n"
+printf "                             Delete Website\n"
+printf "=========================================================================\n"
+printf "Website cannot restore after deleted, please consider...\n"
+
+echo -n "Input the name of website that you want to delete [ENTER]: " 
+read website
+
+if [ "$website" = "$mainsite" ]; then
+echo "You are trying delete the main website !!!!"
+echo "Goodbye...!"
+exit
+fi
+
+if [ -f /etc/nginx/conf.d/$website.conf ]; then
+read -r -p "Website $website is running, Do you want delete it ? [y/N] " response
+case $response in
+    [yY][eE][sS]|[yY]) 
+rm -rf /home/$website
+rm -f /etc/nginx/conf.d/$website.conf
+service nginx restart
+
+echo "Delete successful...!"
+        ;;
+    *)
+        echo "Goodbye....!"
+        ;;
+esac
+else
+echo "Website $website not found, please check again!"
+echo "Goodbye....!"
+exit
+fi

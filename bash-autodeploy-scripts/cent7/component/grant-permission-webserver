@@ -1,0 +1,18 @@
+#!/bin/bash
+
+. /etc/pineauto/scripts.conf
+
+printf "=========================================================================\n"
+printf "                          Grant permission for WebServer\n"
+printf "=========================================================================\n"
+read -r -p "Do you want to do this? [y/N] " response
+case $response in [yY][eE][sS]|[yY])
+	chown -R nginx:nginx /www/*/public_html
+	chown -R nginx:nginx /www/*/private_html
+	echo "Finished....!"
+        ;;
+	*)
+        echo "Goodbye....!"
+        ;;
+esac
+exit

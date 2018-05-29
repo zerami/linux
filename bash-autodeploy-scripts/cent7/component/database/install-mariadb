@@ -1,0 +1,27 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install MariaDB Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+
+cat > "/etc/yum.repos.d/MariaDB.repo" <<END
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.0/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+END
+
+yum -y install MariaDB-server MariaDB-client
+
+printf "=========================================================================\n"
+printf "                            Basic configuration for MySQL\n"
+printf "=========================================================================\n"
+
+service mysql start
+mysql_secure_installation
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"
+

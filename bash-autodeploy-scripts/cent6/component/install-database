@@ -1,0 +1,26 @@
+#!/bin/sh
+
+. /etc/pineauto/scripts.conf
+
+clear
+prompt="Input your choose:"
+options=("Install MySQL" "Install MariaDB" "Install MongoDB")
+
+printf "=========================================================================\n"
+printf "                             PINE AUTO INSTALL DATABASE Menu\n"
+printf "=========================================================================\n"
+PS3="
+$prompt"
+select opt in "${options[@]}" "Exit"; do 
+
+    case "$REPLY" in
+	1 )	/etc/pineauto/menu/database/install-mysql;;
+	2 )	/etc/pineauto/menu/database/install-mariadb;;
+	3 )	/etc/pineauto/menu/database/install-mongodb;;
+
+    $(( ${#options[@]}+1 )) ) printf "\nGoodbye...!\n"; break;;
+    *) echo "Wrong input, please try again";continue;;
+
+    esac
+
+done

@@ -1,0 +1,21 @@
+#!/bin/bash 
+
+. /etc/pineauto/scripts.conf
+
+printf "=========================================================================\n"
+printf "                             Install PHP-MY-ADMIN\n"
+printf "=========================================================================\n"
+
+pma_version="4.5.0.2"
+cd /www/$mainsite/private_html/
+wget -q https://files.phpmyadmin.net/phpMyAdmin/$pma_version/phpMyAdmin-$pma_version-all-languages.tar.gz
+#wget -q http://jaist.dl.sourceforge.net/project/phpmyadmin/phpMyAdmin/$pma_version/phpMyAdmin-$pma_version-english.tar.gz
+tar -xzf phpMyAdmin-$pma_version-all-languages.tar.gz
+mv -f phpMyAdmin-$pma_version-all-languages phpMyAdmin
+
+echo "PhpmyAdmin is added"
+echo "Link phpMyAdmin: http://$mainsite:$priport/ (or http://$serverip:$priport/phpMyAdmin)"
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"

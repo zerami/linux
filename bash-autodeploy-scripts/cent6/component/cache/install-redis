@@ -1,0 +1,16 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install Redis Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+
+yum install -y openssl-devel zlib-devel gcc gcc-c++ make autoconf readline-devel curl-devel expat-devel gettext-devel apr-devel apr-util-devel
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+yum --enablerepo=remi,remi-test install redis -y
+service redis start && chkconfig redis on
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"
+

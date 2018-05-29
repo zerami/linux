@@ -1,0 +1,47 @@
+#!/bin/bash
+
+. /etc/pineauto/scripts.conf
+
+backupcode()
+{
+	echo "Backup $website is starting, please wait a moment...."
+	cd /www/$website/public_html/
+	tar czf $website.tar.gz *
+	
+	mkdir -p /www/$mainsite/private_html/backup/$website/
+	mv $website.tar.gz /www/$mainsite/private_html/backup/$website/$website.tar.gz
+
+	echo "Backup website $website successful..."
+	echo "File backup path: /www/$mainsite/private_html/backup/$website/$website.tar.gz"
+	echo "Link download: http://$mainsite:$priport/backup/$website/$website.tar.gz"
+}
+
+printf "=========================================================================\n"
+printf "                             Backup Code\n"
+printf "=========================================================================\n"
+echo -n "Input website name which you want to backup [ENTER]: " 
+read website
+
+if [ -f /www/$website/public_html/index.php ]; then
+echo "The website $website is running in server"
+if [ -f /www/$mainsite/private_html/backup/$website/$website.tar.gz ]; then
+read -r -p "Had a version backup, Do you want delete and create new one ? [y/N] " response
+case $response in
+    [yY][eE][sS]|[yY]) 
+    	rm -rf /www/$mainsite/private_html/backup/$website/
+	
+	backupcode
+        ;;
+    *)
+        echo "Goodbye....!"
+        ;;
+esac
+else
+	backupcode
+fi
+else
+echo "We're sorry, The website $website not found"
+echo "Or $website don't have any data"
+echo "Goodbye...!"
+exit
+fi

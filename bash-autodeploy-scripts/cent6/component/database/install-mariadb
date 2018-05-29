@@ -1,0 +1,23 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install MariaDB Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+
+cat > "/etc/yum.repos.d/MariaDB.repo" << END
+
+# MariaDB 5.5 CentOS repository list - created 2015-06-08 08:29 UTC
+# http://mariadb.org/mariadb/repositories/
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/5.5/centos6-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+END
+
+yum -y install MariaDB-server MariaDB-client
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"

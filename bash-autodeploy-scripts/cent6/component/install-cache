@@ -1,0 +1,24 @@
+#!/bin/sh
+
+. /etc/pineauto/scripts.conf
+
+clear
+prompt="Input your choose:"
+options=("Install Redis" "Install Memcached")
+
+printf "=========================================================================\n"
+printf "                             PINE AUTO INSTALL CACHE SERVER Menu\n"
+printf "=========================================================================\n"
+PS3="
+$prompt"
+select opt in "${options[@]}" "Exit"; do 
+
+    case "$REPLY" in
+	1 )	/etc/pineauto/menu/cache/install-redis;;
+	2 )	/etc/pineauto/menu/database/install-memcache;;
+    $(( ${#options[@]}+1 )) ) printf "\nGoodbye...!\n"; break;;
+    *) echo "Wrong input, please try again";continue;;
+
+    esac
+
+done

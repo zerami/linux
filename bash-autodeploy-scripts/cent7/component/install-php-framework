@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. /etc/pineauto/scripts.conf
+
+clear
+prompt="Input your choose:"
+options=("Install Phalcon")
+
+printf "=========================================================================\n"
+printf "                             PINE AUTO INSTALL PHP FRAMEWORK Menu\n"
+printf "=========================================================================\n"
+PS3="
+$prompt"
+select opt in "${options[@]}" "Exit"; do 
+
+    case "$REPLY" in
+	1 )	/etc/pineauto/menu/php-framework/install-phalcon;;
+    $(( ${#options[@]}+1 )) ) printf "\nGoodbye...!\n"; break;;
+    *) echo "Wrong input, please try again";continue;;
+
+    esac
+
+done

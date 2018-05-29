@@ -1,0 +1,17 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install MySQL Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+yum --enablerepo=remi -y install list mysql mysql-server
+/etc/rc.d/init.d/mysqld start 
+chkconfig mysqld on
+
+printf "=========================================================================\n"
+printf "                            Basic configuration for MySQL\n"
+printf "=========================================================================\n"
+
+mysql_secure_installation
+
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"

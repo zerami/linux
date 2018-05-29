@@ -1,0 +1,6 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Listing Website\n"
+printf "=========================================================================\n"
+echo "List of websites are running in the server:"
+ls -1 /www/

@@ -1,0 +1,34 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install Redis Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+
+yum install -y openssl-devel zlib-devel gcc gcc-c++ make autoconf readline-devel curl-devel expat-devel gettext-devel apr-devel apr-util-devel
+rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+yum --enablerepo=remi,remi-test install redis -y
+systemctl start  redis.service && systemctl enable redis.service
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Installation redis-stat....\n\n"
+
+curl -L get.rvm.io | bash -s stable
+cd /usr/local/rvm/archives/
+tar -xzf rvm-1.26.11.tgz
+cd rvm-1.26.11
+./install
+cd /usr/local/rvm/
+source scripts/rvm
+ 
+source scripts/rvm
+
+rvm install 2.2.1
+rvm requirements
+gem install redis-stat
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+printf "=========================================================================\n"
+printf "                            Install Phalcon-2.1.0 Module for PHP\n"
+printf "=========================================================================\n"
+
+cd /opt
+git clone https://github.com/phalcon/cphalcon.git
+cd cphalcon/build
+sudo ./install
+
+cat > "/etc/php.d/phalcon.ini" << END
+extension=phalcon.so
+END
+
+systemctl restart nginx.service
+systemctl restart php-fpm.service
+
+printf "Installation completed....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"

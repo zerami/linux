@@ -1,0 +1,25 @@
+#!/bin/bash
+. /etc/pineauto/scripts.conf
+printf "=========================================================================\n"
+printf "                            Install Redis Server\n"
+printf "=========================================================================\n"
+echo "Process is starting....."
+
+yum install -y memcached
+service memcached start
+
+cd /www/$mainsite/private_html/
+mkdir memstat 
+cd memstat
+wget http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+tar -xvzf phpMemcachedAdmin-1.2.2-r262.tar.gz
+chmod +rx *
+chmod 0777 Config/Memcache.php
+chmod 0777 Temp/
+
+
+printf "Installation completed....\n\n"
+printf "Access to http://$serverip:8888/memstat to view memcached stats....\n\n"
+printf "=========================================================================\n"
+printf "Return to PINE AUTO menu\n"
+
