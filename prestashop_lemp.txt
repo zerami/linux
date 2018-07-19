@@ -1,0 +1,175 @@
+#!/bin/bash
+Domain_Name="yourdomain.example"
+Web_Dir="/usr/share/nginx/prestashop"
+
+################ Cai dat repo remi va epel cho lenh Yum, netstat, wget, unzip, nano #############
+
+yum update -y && yum install epel-release -y
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+yum install wget unzip nano net-tools -y
+
+##################### Cai dat repo nginx va repo mariadb ############
+
+cat > /etc/yum.repos.d/nginx.repo << EOF
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/
+gpgcheck=0
+enabled=1
+EOF
+
+cat >  /etc/yum.repos.d/mariadb.repo << EOF
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+
+################### Kich hoat Remi cho php5.6 ########################
+
+sed -i '30s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
+
+########### Cai dat nginx, mariadb, php, php-fpm tu repo Remi #######
+
+yum --enablerepo=remi install nginx MariaDB-client MariaDB-server php php-common php-fpm -y
+
+##############cai dat php modules tu repo Remi#####################
+
+yum --enablerepo=remi install php-mysql php-pgsql php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-pecl-apc php-cli php-pear php-pdo -y
+
+##############cau hinh php.ini#####################
+
+sed -i '/memory_limit/c\memory_limit = 128M' /etc/php.ini
+sed -i '/upload_max_filesize/c\upload_max_filesize = 16M' /etc/php.ini
+sed -i '/max_execution_time/c\max_execution_time = 60' /etc/php.ini
+
+###################### Cau hinh nginx cho Vhost prestashop #####################
+#xoa file default Vhost
+
+if [ -f /etc/nginx/conf.d/default.conf ];
+then
+        echo "Xoa file default vhost"
+        rm -rf /etc/nginx/conf.d/default.conf
+fi
+
+cat > /etc/nginx/conf.d/$Domain_Name.conf << EOF
+server {
+       listen 80;
+       server_name $Domain_Name;
+       root $Web_Dir;
+
+       if ($http_host != "$Domain_Name") {
+                 rewrite ^ http://$Domain_Name$request_uri permanent;
+       }
+
+       index index.php index.html;
+
+       location = /favicon.ico {
+                log_not_found off;
+                access_log off;
+       }
+
+       location = /robots.txt {
+                allow all;
+                log_not_found off;
+                access_log off;
+       }
+
+       # Deny all attempts to access hidden files such as .htaccess, .htpasswd, .DS_Store (Mac).
+       location ~ /\. {
+                deny all;
+                access_log off;
+                log_not_found off;
+       }
+
+       rewrite ^/api/?(.*)$ /webservice/dispatcher.php?url=$1 last;
+       rewrite ^/([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$1$2$3.jpg last;
+       rewrite ^/([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$1$2$3$4.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$1$2$3$4$5.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$1$2$3$4$5$6.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$1$2$3$4$5$6$7.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$1$2$3$4$5$6$7$8.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$7/$1$2$3$4$5$6$7$8$9.jpg last;
+       rewrite ^/([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])([0-9])(\-[_a-zA-Z0-9-]*)?(-[0-9]+)?/.+\.jpg$ /img/p/$1/$2/$3/$4/$5/$6/$7/$8/$1$2$3$4$5$6$7$8$9$10.jpg last;
+       rewrite ^/c/([0-9]+)(\-[\.*_a-zA-Z0-9-]*)(-[0-9]+)?/.+\.jpg$ /img/c/$1$2$3.jpg last;
+       rewrite ^/c/([a-zA-Z_-]+)(-[0-9]+)?/.+\.jpg$ /img/c/$1$2.jpg last;
+       rewrite ^/images_ie/?([^/]+)\.(jpe?g|png|gif)$ /js/jquery/plugins/fancybox/images/$1.$2 last;
+       try_files $uri $uri/ /index.php$is_args$args;
+       error_page 404 /index.php?controller=404;
+	   
+       location ~* \.(gif)$ {
+          expires 2592000s;
+       }
+       location ~* \.(jpeg|jpg)$ {
+          expires 2592000s;
+       }
+       location ~* \.(png)$ {
+          expires 2592000s;
+       }
+       location ~* \.(css)$ {
+          expires 604800s;
+       }
+       location ~* \.(js|jsonp)$ {
+          expires 604800s;
+       }
+       location ~* \.(js)$ {
+          expires 604800s;
+       }
+       location ~* \.(ico)$ {
+          expires 31536000s;
+       }
+
+       location ~ \.php$ {
+                try_files $uri =404;
+                include /etc/nginx/fastcgi_params;
+                fastcgi_pass 127.0.0.1:9000;
+                fastcgi_index index.php;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                fastcgi_intercept_errors on;
+       }
+}
+EOF
+
+################## Cau hinh php-fpm ########################
+
+#sed -i '23s/apache/nginx/' /etc/php-fpm.d/www.conf
+#sed -i '25s/apache/nginx/' /etc/php-fpm.d/www.conf
+#sed -i '49,50s/nobody/nginx/' /etc/php-fpm.d/www.conf
+#sed -i '49,51s/^;//' /etc/php-fpm.d/www.conf
+
+######## download prestashop, change the parameter ###############
+
+wget https://download.prestashop.com/download/releases/prestashop_1.6.1.7.zip
+unzip ~/prestashop_1.6.1.7.zip -d /usr/share/nginx/
+
+
+
+################# Cau hinh MariaDB ########################
+
+service mariadb start
+service mariadb enable
+
+mysql_secure_installation <<EOF
+
+Y
+123456
+123456
+y
+y
+y
+y
+EOF
+
+############## Mo dich vu https va enable & Re-start all service #########
+firewall-cmd --add-service=http --permanent
+firewall-cmd --reload
+
+systemctl enable nginx
+systemctl enable php-fpm
+
+service mariadb restart
+service nginx restart
+service php-fpm restart
+
+############## End of Script #########################

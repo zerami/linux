@@ -1,0 +1,112 @@
+1/ cai lemp + wget + nano + unzip
+################################################################################################################
+2/ cd /var/www/html/[your domain name]
+################################################################################################################
+3/ wget "https://www.cs-cart.com/index.php?dispatch=pages.get_trial&page_id=297&edition=ultimate" -O cscart.zip
+################################################################################################################
+4/ chown -R nginx:nginx /var/www/html/thoaiquy.paradiseio.com
+################################################################################################################
+5/ chown -R service ./
+   chmod 644 config.local.php
+   chmod -R 755 design images var
+   find design -type f -print0 | xargs -0 chmod 644
+   find images -type f -print0 | xargs -0 chmod 644
+   find var -type f -print0 | xargs -0 chmod 644
+################################################################################################################
+6/ /etc/nginx/nginx.conf
+user nginx;
+worker_processes 8;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+events {
+worker_connections 1024;
+}
+http {
+include /etc/nginx/mime.types;
+default_type application/octet-stream;
+log_format main ‘$remote_addr – $remote_user [$time_local] “$request” ‘
+‘$status $body_bytes_sent “$http_referer” ‘
+‘”$http_user_agent” “$http_x_forwarded_for”‘;
+access_log /var/log/nginx/access.log main;
+sendfile on;
+tcp_nopush on;
+tcp_nodelay on;
+keepalive_timeout 65;
+server_tokens off;
+gzip on;
+gzip_vary on;
+gzip_disable “msie6?;
+gzip_http_version 1.0;
+gzip_comp_level 8;
+gzip_proxied any;
+gzip_types text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+client_body_temp_path /tmp/client_temp;
+# proxy_temp_path /tmp/proxy_temp;
+# proxy_cache_path /var/cache/nginx/proxy_cache levels=2 keys_zone=nginx:100m inactive=200m max_size=5000m;
+include /etc/nginx/conf.d/*.conf;
+fastcgi_cache_path /var/cache/nginx levels=1:2 keys_zone=cache:10m max_size=1000m inactive=60m;
+fastcgi_cache_key “$scheme$request_method$host$request_uri”;
+}
+################################################################################################################
+7/ nano /etc/nginx/con.f/wei.conf
+server {
+listen 80;
+#listen 443 default ssl;
+#ssl_certificate /etc/nginx/certs/server.crt;
+#ssl_certificate_key /etc/nginx/certs/server.key;
+server_name thoaiquy.paradiseio.com;
+location / {
+root /var/www/html/thoaiquy.paradiseio.com;
+index index.php;
+try_files $uri $uri/ /index.php?sef_rewrite=1&$args;
+}
+error_page 500 502 503 504 /50x.html;
+location = /50x.html {
+root /var/www/html/thoaiquy.paradiseio.com;
+}
+location ~ .php$ {
+root /var/www/html/thoaiquy.paradiseio.com;
+fastcgi_pass 127.0.0.1:9000;
+fastcgi_index index.php;
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name; 
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name; 
+include fastcgi_params;
+fastcgi_buffers 4 256k;
+fastcgi_busy_buffers_size 256k;
+fastcgi_temp_file_write_size 256k;
+fastcgi_cache_valid 200 302 10m;
+fastcgi_cache_valid 301 1h;
+fastcgi_cache_valid any 1m;
+}
+location ~* .(css|js|jpg|jpeg|png|swf|gif|svg|ttf|eot)$ {
+root /var/www/html/thoaiquy.paradiseio.com;
+try_files $uri http://backend$1;
+expires max;
+add_header Access-Control-Allow-Origin *;
+add_header Cache-Control public;
+#add_header X-CDN “WCWS INTERNET”;
+#add_header ETag “”;
+#log_not_found off;
+#add_header Cache-Control “public”;
+#add_header Last-Modified “Sat, 30 Mar 2013 21:47:15 GMT”;
+}
+location ~ /.ht {
+deny all;
+}
+}
+################################################################################################################
+8/ mysqladmin -u root -p create cs_cart 
+mysql -u root -p
+GRANT ALL PRIVILEGES ON cs_cart.* TO 'cscart_user'@'localhost' IDENTIFIED BY 'xyz123';
+GRANT ALL PRIVILEGES ON cs_cart.* TO 'cscart_user'@'localhost.localdomain' IDENTIFIED BY 'xyz123';
+FLUSH PRIVILEGES;
+quit;
+################################################################################################################
+9/ cd /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/www.sitename.com.vhost www.sitename.com.vhost
+################################################################################################################
+10/ tat selinux 
+service httpd stop
+service nginx restart
+service mariadb restart
+service php-fpm restart

@@ -1,0 +1,104 @@
+ansible:
+A.May client
+1/ ssh-keygen -t rsa
+2/ cd /root/.ssh/
+3/ cat id_rsa.pub >> authorized_keys
+4/ chmod 600 authorized_keys 
+5/ chomod 700 ../.ssh	
+6/ yum install nano -y  (hoac dung vi)
+7/ nano /etc/ssh/sshd_config
+sua dong : 38 PermitRootLogin yes
+8/ service sshd restart
+9/ cat id_rsa  (copy key vao file key.txt cua May ansible)
+
+B.May ansible
+1/ yum install epel-release -y
+2/ yum install ansible nano wget java git -y
+3/ ansible --version
+4/ nano /etc/ansible/hosts
+[web]
+node1 ansible_host=(Ip may client) ansible_user=root ansible_ssh_private_key_file=/home/thoaiquy/key.txt
+5/ cd /home/thoaiquy
+6/ nano key.txt
+7/ chmod 600 key.txt 
+8/ ssh -i /home/thoaiquy/key.txt root@10.140.0.4
+9/ test ket noi
+ansible -m ping all
+
+Jenkins:
+1/ wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+2/ rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+3/ java -version
+4/ firewall-cmd --zone=public --permanent --add-port=8080/tcp
+5/ firewall-cmd --reload
+6/ yum install jenkins -y
+7/ service jenkins start
+
+Nginx:
+8/ rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+9/ yum --enablerepo=remi install nginx php php-common php-fpm php-mysql php-pgsql -y
+10/ yum install php-pecl-mongo php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-pecl-apc php-cli php-pear php-pdo -y
+11/ sed -i '7s/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+    sed -i '23s/apache/nginx/; 25s/apache/nginx/' /etc/php-fpm.d/www.conf
+    sed -i '49s/;listen.owner = nobody/listen.owner = nginx/' /etc/php-fpm.d/www.conf
+    sed -i '50s/;listen.group = nobody/listen.group = nginx/' /etc/php-fpm.d/www.conf
+    sed -i '51s/;listen.mode = 0660/listen.mode = 0660/' /etc/php-fpm.d/www.conf
+12/ touch /var/log/nginx/access.log
+13/ touch /var/log/nginx/error.log
+14/ nano /etc/nginx/conf.d/snocjenkins.conf
+server { 
+listen 80; 
+server_name snocjenkins.paradiseio.com; 
+access_log /var/log/nginx/access.log; 
+error_log /var/log/nginx/error.log; 
+root /usr/share/nginx/wordpress;
+index index.php index.html; 
+location ~* \.php$ { 
+fastcgi_index   index.php; 
+fastcgi_pass    127.0.0.1:9000; 
+include         fastcgi_params; 
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name; 
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name; 
+}
+# Disable favicon.ico logging
+location = /favicon.ico {
+log_not_found off;
+access_log off;
+}
+# Allow robots and disable logging
+location = /robots.txt {
+allow all;
+log_not_found off;
+access_log off;
+}
+# Enable permalink structures
+if (!-e $request_filename) {
+rewrite . /index.php last;
+}
+# Handle php requests
+location ~ \.php$ {
+include /etc/nginx/fastcgi_params;
+fastcgi_pass  127.0.0.1:9000;
+fastcgi_index index.php;
+fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+}
+# Disable static content logging and set cache time to max
+location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+expires max;
+log_not_found off;
+}
+# Deny access to htaccess and htpasswd files
+location ~ /\.ht {
+deny  all;
+} 
+} 
+15/ reboot
+16/ service httpd stop
+    service nginx restart
+    service php-fpm restart
+17/ snocjenkins.paradiseio.com:8080
+18/ cat /var/lib/jenkins/secrets/initialAdminPassword
+19/ lam theo huong dan tren web
+
+
