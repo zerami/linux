@@ -1,0 +1,28 @@
+------------------------------- outsite------------------------------------------------------------
+<html>
+  <body style="margin:0; padding:0">
+   <div align="center">outsite | foshan</div>
+   <iframe frameborder=0 width=49.8% height=35% src="http://outsitemon.paradiseio.com"></iframe>                  (khoan cach width & height, src:link)
+   <iframe frameborder=0 width=49.8% height=35% src="http://http://113.69.149.169:8008/"></iframe>
+   <div align="center">qingdao | hangzhou</div>
+   <iframe frameborder=0 width=49.8% height=35% src="http://47.105.52.223:8008"></iframe>
+   <iframe frameborder=0 width=49.8% height=35% src="http://47.97.219.217:8008/"></iframe>
+   <div align="center">shenzhen | beijing</div>
+   <iframe frameborder=0 width=49.8% height=35% src="http://47.106.181.164:8008"></iframe>
+   <iframe frameborder=0 width=49.8% height=35% src="http://39.107.76.67:8008/"></iframe>
+ </body>
+</html>
+
+-----------------------------------------Grafana & xunya -------------------------------------------------
+<html>
+  <body style="margin:0; padding:0">
+    <div align="center">Grafana</div>
+ <iframe frameborder=0 width=100% height=40% src="http://grafana.paradiseio.com:3000/?orgId=1"></iframe>
+ <div align="center">sh-dns.pradiseio | js-dns.paradiseio</div>
+ <iframe frameborder=0 width=49.8% height=30% src="http://sh-dns.paradiseio.com:2812/"></iframe>
+    <iframe frameborder=0 width=49.8% height=30% src="http://js-dns.paradiseio.com:2812/"></iframe>
+ <div align="center">wx-dns-dns.pradiseio | -dns.paradiseio</div>
+ <iframe frameborder=0 width=49.8% height=30% src="http://wx-dns.paradiseio.com:2812/"></iframe>
+ 
+    </body>
+</html>

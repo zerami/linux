@@ -30,6 +30,7 @@ EOF
 
 mysql -u root -p 12345678
 CREATE USER 'thoaiquy'@'10.1... cua wordpress' IDENTIFIED BY '12345678';
+             'thoaiquy'@'%' dung cho toan bo
 CREATE DATABASE thoaiquydata;
 GRANT ALL ON thoaiquydata.* TO 'thoaiquy'@'10.0' IDENTIFIED BY '12345678';
 FLUSH PRIVILEGES;

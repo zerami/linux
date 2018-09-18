@@ -1,0 +1,43 @@
+#!/bin/bash
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+rs=`tput sgr0`
+
+if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
+   echo "Parameter missing"
+   echo "Usage: sslv2.sh [brand] [service] [domain] "
+else
+  brand=$1
+  service_name=$2
+  domain=$3
+  cd /opt/sslv2/
+  Text=$(/opt/sslv2/acme.sh --issue -d $domain -d *.$domain --dns --force  --yes-I-know-dns-manual-mode-enough-go-ahead-please | grep "TXT value")
+  T1=`echo $Text | cut -d\' -f2`
+  T2=`echo $Text | cut -d\' -f4`
+  echo "Create TXT record with value $T1"
+  /bin/php /opt/sslv2/txt_record_create.php $brand $domain $T1
+  echo "Create TXT record with value $T2"
+  /bin/php /opt/sslv2/txt_record_create.php $brand $domain $T2
+
+  sleep 3   
+  txt_verify_1=`dig -t txt _acme-challenge.$domain | grep "$T1"`
+  echo $txt_verify_1
+
+  txt_verify_2=`dig -t txt _acme-challenge.$domain | grep "$T2"`
+  echo $txt_verify_2
+
+  if [[ -z "$txt_verify_1" && -z "$txt_verify_2" ]]; then
+     echo "TXT Record Not Found."
+     echo "${red}SSL request failure...${rs}"
+  else
+     echo "${yellow}TXT Record Matched. ${rs}"
+     echo "Process renew Wildcard SSL for domain ${green} $domain ${rs}" 
+     /opt/sslv2/acme.sh --renew -d $domain -d *.$domain --dns --force  --yes-I-know-dns-manual-mode-enough-go-ahead-please
+     echo "genarate cert..."
+     mkdir /opt/cert-gen/sslv2/$brand/$service_name/$domain
+     cp /opt/sslv2/cert/$domain/fullchain.cer /opt/cert-gen/sslv2/$brand/$service_name/$domain/$domain.crt 
+     cp /opt/sslv2/cert/$domain/$domain.key /opt/cert-gen/sslv2/$brand/$service_name/$domain/$domain.key
+  fi
+fi

@@ -1,0 +1,46 @@
+expire_logs_days        = 7
+max_binlog_size         = 100M
+server-id=5
+
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+# Skip reverse DNS lookup of clients
+skip-name-resolve
+replicate-do-db = geadns
+replicate-ignore-db = mysql
+replicate-ignore-db = information_schema
+replicate-ignore-db = performance_schema
+replicate-ignore-db = test
+
+#cache setting
+query_cache_limit       = 32M
+query_cache_size        = 128M
+query_cache_type        = 1
+table_open_cache        = 5000
+thread_cache_size       = 100
+
+#buffer sizes
+key_buffer_size         = 64M
+sort_buffer_size        = 64M
+read_buffer_size        = 64M
+join_buffer_size        = 128M
+
+#tmpdir / temp table sizes
+tmp_table_size          = 512M
+max_heap_table_size     = 512M
+
+#innodb settings
+innodb_data_file_path     = ibdata1:20M:autoextend
+innodb_thread_concurrency = 0
+innodb_buffer_pool_size   = 8G
+innodb_log_buffer_size    = 64M
+innodb_file_per_table     = 1
+
+slave-skip-errors = 1677,1091,1050,1146,1062,1054,1396

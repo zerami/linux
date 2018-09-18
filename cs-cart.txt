@@ -6,8 +6,7 @@
 ################################################################################################################
 4/ chown -R nginx:nginx /var/www/html/thoaiquy.paradiseio.com
 ################################################################################################################
-5/ chown -R service ./
-   chmod 644 config.local.php
+5/ chmod 644 config.local.php
    chmod -R 755 design images var
    find design -type f -print0 | xargs -0 chmod 644
    find images -type f -print0 | xargs -0 chmod 644
